@@ -38,6 +38,25 @@ def get_filmes():
     except Error as e:
         st.error(f"Erro ao conectar ao banco de dados: {e}")
         return []
+    
+def get_exibicao():
+    try:
+        db = connect_to_db()
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT
+                num_filme,
+                num_canal,
+                DATE_FORMAT(data, '%d - %M - %Y') AS data_formatada
+            FROM exibicao
+        """)
+        exibicoes = cursor.fetchall()
+        cursor.close()
+        db.close()
+        return exibicoes
+    except Error as e:
+        st.error(f"Erro ao conectar ao banco de dados: {e}")
+        return []
 
 # Função para verificar se o número do filme já existe
 def filme_existe(num_filme):
@@ -180,6 +199,9 @@ def main():
                 coluna = colunas[idx % num_colunas]  # Seleciona a coluna com base no índice do canal
                 
                 with coluna:
+                    
+                    st.markdown(f'<img src="{canal["imagem_url"]}" class="canal-imagem">', unsafe_allow_html=True)
+                    # Exibindo as demais informações do canal
                     st.markdown(f"""
                         <div class="canal-card">
                             <p><strong>ID:</strong> {canal['num_canal']}</p>
@@ -190,6 +212,7 @@ def main():
                     st.markdown("---")
         else:
             st.write("Nenhum canal encontrado.")
+
 
 
     elif opcao_principal == "Filmes":
@@ -261,7 +284,7 @@ def main():
 
         elif escolha == "Recomendações":
             st.subheader("Recomendações de Filmes")
-            genero = st.selectbox("Selecione o Gênero", options=["Ação", "Aventura", "Comédia", "Drama", "Ficção Científica", "Fantasia", "Suspense", "Romance", "Terror"])
+            genero = st.selectbox("Selecione o Gênero", options=["Ação", "Animação", "Comédia", "Drama", "Ficção Científica", "Fantasia", "Suspense", "Romance", "Terror"])
             ano = st.number_input("Ano de Lançamento", min_value=1900, max_value=2100)
 
             col1, col2 = st.columns(2)
@@ -307,7 +330,27 @@ def main():
                         st.write("Nenhum filme encontrado.")
     
     elif opcao_principal == "Exibição":
-        st.write("Funcionalidade de canais ainda não implementada.")
+        st.subheader("Filmes na Telinha")
+        exibicoes = get_exibicao()
+        if exibicoes:
+            num_colunas = 3  # Definindo o número de colunas
+            colunas = st.columns(num_colunas)
+            
+            for idx, exibicao in enumerate(exibicoes):
+                coluna = colunas[idx % num_colunas]  # Seleciona a coluna com base no índice do canal
+                
+                with coluna:
+                    st.markdown(f"""
+                        <div class="canal-card">
+                            <p><strong>Número do Filme:</strong> {exibicao['num_filme']}</p>
+                            <p><strong>Canal:</strong> {exibicao['num_canal']}</p>
+                            <p><strong>Data:</strong> {exibicao['data_formatada']}</p>
+                        </div>
+                    """, unsafe_allow_html=True)
+                    st.markdown("---")
+        else:
+            st.write("Nenhuma exibição encontrada.")
+
 
 if __name__ == "__main__":
     main()

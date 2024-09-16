@@ -60,3 +60,17 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 14px;
     color: #333;
 }
+
+.canal-imagem {
+    height: 210px;  /* Define uma altura fixa */
+    object-fit: cover;  /* Ajusta a imagem para cobrir o espaço sem distorcer */
+    width: 100%;  /* Garante que a imagem preencha a largura da coluna */
+    border-radius: 15px;  /* Aplica bordas arredondadas */
+    border: 2px solid #ddd;  /* Adiciona uma borda leve ao redor da imagem (opcional) */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;  /* Suaviza a transição */
+}
+
+.canal-imagem:hover {
+    transform: scale(1.05);  /* Aumenta a imagem em 5% */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);  /* Aplica uma sombra mais profunda */
+}
