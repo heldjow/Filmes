@@ -1,0 +1,62 @@
+/* styles.css */
+
+.stApp {
+    background-color: #000000;  /* Fundo preto */
+}
+
+.css-18e3th9 {
+    background-color: rgba(0, 0, 0, 0.8) !important;  /* Fundo semi-transparente */
+    color: #FFFFFF !important;  /* Texto branco */
+}
+
+.stButton button {
+    background-color: #E50914;  /* Botão vermelho Netflix */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    width: 100%;
+    font-size: 16px;
+    padding: 10px 0;
+}
+
+.stTextInput > div > div > input {
+    border: none;
+    border-bottom: 2px solid #E50914;  /* Linha vermelha nos campos de entrada */
+    background: transparent;
+    color: white;
+    font-size: 16px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #E50914;  /* Títulos em vermelho */
+}
+
+.filme-card {
+    border: 2px solid #E50914;  /* Borda vermelha para a caixa de filme */
+    color: #FFFFFF;  /* Texto branco */
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);  /* Sombra leve para a caixa */
+    margin-bottom: 15px;
+    background-color: #333333;  /* Fundo cinza escuro para a caixa */
+}
+
+.filme-poster {
+    margin-bottom: 10px;
+}
+
+/* Estilos para o cartão de canais */
+.canal-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.canal-card p {
+    margin: 4px 0;
+    font-size: 14px;
+    color: #333;
+}
