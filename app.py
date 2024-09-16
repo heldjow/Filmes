@@ -45,10 +45,12 @@ def get_exibicao():
         cursor = db.cursor(dictionary=True)
         cursor.execute("""
             SELECT
-                num_filme,
-                num_canal,
-                DATE_FORMAT(data, '%d - %M - %Y') AS data_formatada
-            FROM exibicao
+                e.num_filme,
+                e.num_canal,
+                f.titulo_original AS nome_filme,
+                DATE_FORMAT(e.data, '%d-%m-%Y %H:%i:%s') AS data_formatada
+            FROM exibicao e
+            JOIN filme f ON e.num_filme = f.num_filme
         """)
         exibicoes = cursor.fetchall()
         cursor.close()
@@ -56,7 +58,6 @@ def get_exibicao():
         return exibicoes
     except Error as e:
         st.error(f"Erro ao conectar ao banco de dados: {e}")
-        return []
 
 # Função para verificar se o número do filme já existe
 def filme_existe(num_filme):
@@ -331,7 +332,7 @@ def main():
     
     elif opcao_principal == "Exibição":
         st.subheader("Filmes na Telinha")
-        exibicoes = get_exibicao()
+        exibicoes = get_exibicao()  
         if exibicoes:
             num_colunas = 3  # Definindo o número de colunas
             colunas = st.columns(num_colunas)
@@ -343,8 +344,9 @@ def main():
                     st.markdown(f"""
                         <div class="canal-card">
                             <p><strong>Número do Filme:</strong> {exibicao['num_filme']}</p>
+                            <p><strong>Nome do Filme:</strong> {exibicao['nome_filme']}</p>
                             <p><strong>Canal:</strong> {exibicao['num_canal']}</p>
-                            <p><strong>Data:</strong> {exibicao['data_formatada']}</p>
+                            <p><strong>Data e Hora:</strong> {exibicao['data_formatada']}</p>
                         </div>
                     """, unsafe_allow_html=True)
                     st.markdown("---")
