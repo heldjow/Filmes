@@ -7,11 +7,11 @@ def connect_to_db():
     return mysql.connector.connect(
         host="localhost",
         user="root",
-        password="Spfc67523",
+        password="12345678",
         database="programacoes_filmes"
     )
 
-#Função para consultar canais
+# Função para consultar canais
 def get_canais():
     try:
         db = connect_to_db()
@@ -38,19 +38,21 @@ def get_filmes():
     except Error as e:
         st.error(f"Erro ao conectar ao banco de dados: {e}")
         return []
-    
+
 def get_exibicao():
     try:
         db = connect_to_db()
         cursor = db.cursor(dictionary=True)
-        cursor.execute("""
+        cursor.execute(""" 
             SELECT
                 e.num_filme,
                 e.num_canal,
                 f.titulo_original AS nome_filme,
-                DATE_FORMAT(e.data, '%d-%m-%Y %H:%i:%s') AS data_formatada
+                DATE_FORMAT(e.data, '%d-%m-%Y %H:%i:%s') AS data_formatada,
+                c.imagem_url AS imagem_canal
             FROM exibicao e
             JOIN filme f ON e.num_filme = f.num_filme
+            JOIN canal c ON e.num_canal = c.num_canal
         """)
         exibicoes = cursor.fetchall()
         cursor.close()
@@ -58,6 +60,7 @@ def get_exibicao():
         return exibicoes
     except Error as e:
         st.error(f"Erro ao conectar ao banco de dados: {e}")
+        return []
 
 # Função para verificar se o número do filme já existe
 def filme_existe(num_filme):
@@ -74,7 +77,7 @@ def filme_existe(num_filme):
         return False
 
 # Função para adicionar um novo filme
-def add_filme(num_filme, titulo_original, titulo_brasil, ano_lancamento, pais_origem, categoria, duracao, imagem_url):
+def add_filme(num_filme, titulo_original, titulo_brasil, ano_lancamento, pais_origem, categoria, duracao, imagem_url, classificacao):
     if filme_existe(num_filme):
         st.error("Erro: Já existe um filme com esse número.")
         return
@@ -83,10 +86,10 @@ def add_filme(num_filme, titulo_original, titulo_brasil, ano_lancamento, pais_or
         db = connect_to_db()
         cursor = db.cursor()
         query = """
-        INSERT INTO filme (num_filme, titulo_original, titulo_brasil, ano_lancamento, pais_origem, categoria, duracao, imagem_url)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO filme (num_filme, titulo_original, titulo_brasil, ano_lancamento, pais_origem, categoria, duracao, imagem_url, classificacao)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
-        values = (num_filme, titulo_original, titulo_brasil, ano_lancamento, pais_origem, categoria, duracao, imagem_url)
+        values = (num_filme, titulo_original, titulo_brasil, ano_lancamento, pais_origem, categoria, duracao, imagem_url, classificacao)
         cursor.execute(query, values)
         db.commit()
         cursor.close()
@@ -110,7 +113,7 @@ def remove_filme(num_filme):
         st.error(f"Erro ao remover filme: {e}")
 
 # Função para atualizar um filme
-def update_filme(num_filme, titulo_original, titulo_brasil, ano_lancamento, pais_origem, categoria, duracao, imagem_url):
+def update_filme(num_filme, titulo_original, titulo_brasil, ano_lancamento, pais_origem, categoria, duracao, imagem_url, classificacao):
     if not filme_existe(num_filme):
         st.error("Erro: Filme com esse número não encontrado.")
         return
@@ -126,10 +129,11 @@ def update_filme(num_filme, titulo_original, titulo_brasil, ano_lancamento, pais
             pais_origem = %s,
             categoria = %s,
             duracao = %s,
-            imagem_url = %s
+            imagem_url = %s,
+            classificacao = %s
         WHERE num_filme = %s
         """
-        values = (titulo_original, titulo_brasil, ano_lancamento, pais_origem, categoria, duracao, imagem_url, num_filme)
+        values = (titulo_original, titulo_brasil, ano_lancamento, pais_origem, categoria, duracao, imagem_url, classificacao, num_filme)
         cursor.execute(query, values)
         db.commit()
         cursor.close()
@@ -168,6 +172,11 @@ def get_filmes_por_ano(ano):
         st.error(f"Erro ao conectar ao banco de dados: {e}")
         return []
 
+# Função para verificar a classificação e mostrar uma notificação
+def verificar_classificacao(classificacao):
+    if classificacao == "18":
+        st.warning("Este filme é para maiores de 18 anos.")
+
 # Função principal da aplicação
 def main():
     with open('styles.css', 'r') as css_file:
@@ -200,7 +209,6 @@ def main():
                 coluna = colunas[idx % num_colunas]  # Seleciona a coluna com base no índice do canal
                 
                 with coluna:
-                    
                     st.markdown(f'<img src="{canal["imagem_url"]}" class="canal-imagem">', unsafe_allow_html=True)
                     # Exibindo as demais informações do canal
                     st.markdown(f"""
@@ -214,10 +222,7 @@ def main():
         else:
             st.write("Nenhum canal encontrado.")
 
-
-
     elif opcao_principal == "Filmes":
-
         menu_filmes = ["Visualizar Filmes", "Adicionar Filme", "Remover Filme", "Atualizar Filme", "Recomendações"]
         escolha = st.sidebar.radio("Escolha uma opção", menu_filmes)
 
@@ -225,134 +230,123 @@ def main():
             st.subheader("Catálogo")
             filmes = get_filmes()
             if filmes:
-                num_colunas = 3  # Definindo o número de colunas
+                num_colunas = 3  # Número de colunas para exibir os filmes
                 colunas = st.columns(num_colunas)
                 
                 for idx, filme in enumerate(filmes):
                     coluna = colunas[idx % num_colunas]  # Seleciona a coluna com base no índice do filme
                     
                     with coluna:
-                        st.image(filme['imagem_url'], width=200)  # Exibir o poster
-                        st.markdown(f"""
+                        st.markdown(f'''
                             <div class="filme-card">
-                                <p><strong>Número do Filme</strong>: {filme['num_filme']}</p>
-                                <p><strong>Título Original</strong>: {filme['titulo_original']}</p>
-                                <p><strong>Título no Brasil</strong>: {filme['titulo_brasil']}</p>
-                                <p><strong>Ano de Lançamento</strong>: {filme['ano_lancamento']}</p>
-                                <p><strong>País de Origem</strong>: {filme['pais_origem']}</p>
-                                <p><strong>Categoria</strong>: {filme['categoria']}</p>
-                                <p><strong>Duração</strong>: {filme['duracao']} minutos</p>
+                                <img src="{filme['imagem_url']}" class="filme-imagem">
+                                <p><strong>Título Original:</strong> {filme['titulo_original']}</p>
+                                <p><strong>Título Brasil:</strong> {filme['titulo_brasil']}</p>
+                                <p><strong>Ano de Lançamento:</strong> {filme['ano_lancamento']}</p>
+                                <p><strong>País de Origem:</strong> {filme['pais_origem']}</p>
+                                <p><strong>Categoria:</strong> {filme['categoria']}</p>
+                                <p><strong>Duração:</strong> {filme['duracao']}</p>
+                                <p><strong>Classificação:</strong> {filme['classificacao']}</p>
                             </div>
-                        """, unsafe_allow_html=True)
-                        st.markdown("---")
+                        ''', unsafe_allow_html=True)
             else:
                 st.write("Nenhum filme encontrado.")
 
         elif escolha == "Adicionar Filme":
             st.subheader("Adicionar Novo Filme")
-            num_filme = st.number_input("Número do Filme", min_value=1)
+            num_filme = st.text_input("Número do Filme")
             titulo_original = st.text_input("Título Original")
-            titulo_brasil = st.text_input("Título no Brasil")
-            ano_lancamento = st.number_input("Ano de Lançamento", min_value=1900, max_value=2100)
+            titulo_brasil = st.text_input("Título Brasil")
+            ano_lancamento = st.text_input("Ano de Lançamento")
             pais_origem = st.text_input("País de Origem")
             categoria = st.text_input("Categoria")
-            duracao = st.number_input("Duração (em minutos)", min_value=0)
+            duracao = st.text_input("Duração")
             imagem_url = st.text_input("URL da Imagem")
+            classificacao = st.text_input("Classificação")
 
             if st.button("Adicionar Filme"):
-                add_filme(num_filme, titulo_original, titulo_brasil, ano_lancamento, pais_origem, categoria, duracao, imagem_url)
+                add_filme(num_filme, titulo_original, titulo_brasil, ano_lancamento, pais_origem, categoria, duracao, imagem_url, classificacao)
+                verificar_classificacao(classificacao)
 
         elif escolha == "Remover Filme":
             st.subheader("Remover Filme")
-            num_filme = st.number_input("Número do Filme", min_value=1)
-            
+            num_filme = st.text_input("Número do Filme")
+
             if st.button("Remover Filme"):
                 remove_filme(num_filme)
 
         elif escolha == "Atualizar Filme":
             st.subheader("Atualizar Filme")
-            num_filme = st.number_input("Número do Filme", min_value=1)
+            num_filme = st.text_input("Número do Filme")
             titulo_original = st.text_input("Novo Título Original")
-            titulo_brasil = st.text_input("Novo Título no Brasil")
-            ano_lancamento = st.number_input("Novo Ano de Lançamento", min_value=1900, max_value=2100)
+            titulo_brasil = st.text_input("Novo Título Brasil")
+            ano_lancamento = st.text_input("Novo Ano de Lançamento")
             pais_origem = st.text_input("Novo País de Origem")
             categoria = st.text_input("Nova Categoria")
-            duracao = st.number_input("Nova Duração (em minutos)", min_value=0)
+            duracao = st.text_input("Nova Duração")
             imagem_url = st.text_input("Nova URL da Imagem")
+            classificacao = st.text_input("Nova Classificação")
 
             if st.button("Atualizar Filme"):
-                update_filme(num_filme, titulo_original, titulo_brasil, ano_lancamento, pais_origem, categoria, duracao, imagem_url)
+                update_filme(num_filme, titulo_original, titulo_brasil, ano_lancamento, pais_origem, categoria, duracao, imagem_url, classificacao)
+                verificar_classificacao(classificacao)
 
         elif escolha == "Recomendações":
             st.subheader("Recomendações de Filmes")
-            genero = st.selectbox("Selecione o Gênero", options=["Ação", "Animação", "Comédia", "Drama", "Ficção Científica", "Fantasia", "Suspense", "Romance", "Terror"])
-            ano = st.number_input("Ano de Lançamento", min_value=1900, max_value=2100)
+            genero = st.text_input("Digite o gênero dos filmes que você gosta:")
+            ano = st.text_input("Digite o ano de lançamento (opcional):")
 
-            col1, col2 = st.columns(2)
+            if genero:
+                filmes_recomendados = get_filmes_por_genero(genero)
+                if filmes_recomendados:
+                    st.write(f"Filmes recomendados para o gênero {genero}:")
+                    for filme in filmes_recomendados:
+                        st.markdown(f'''
+                            <div class="filme-card">
+                                <img src="{filme['imagem_url']}" class="filme-imagem">
+                                <p><strong>Título Original:</strong> {filme['titulo_original']}</p>
+                                <p><strong>Título Brasil:</strong> {filme['titulo_brasil']}</p>
+                                <p><strong>Ano de Lançamento:</strong> {filme['ano_lancamento']}</p>
+                                <p><strong>País de Origem:</strong> {filme['pais_origem']}</p>
+                                <p><strong>Categoria:</strong> {filme['categoria']}</p>
+                                <p><strong>Duração:</strong> {filme['duracao']}</p>
+                                <p><strong>Classificação:</strong> {filme['classificacao']}</p>
+                            </div>
+                        ''', unsafe_allow_html=True)
+                else:
+                    st.write("Nenhum filme encontrado para o gênero especificado.")
 
-            with col1:
-                if st.button("Recomendar por Gênero"):
-                    filmes_por_genero = get_filmes_por_genero(genero)
-                    if filmes_por_genero:
-                        st.write(f"Filmes no gênero {genero}:")
-                        for filme in filmes_por_genero:
-                            st.markdown(f"""
-                                <div class="filme-card">
-                                    <p><strong>Título Original</strong>: {filme['titulo_original']}</p>
-                                    <p><strong>Título no Brasil</strong>: {filme['titulo_brasil']}</p>
-                                    <p><strong>Ano de Lançamento</strong>: {filme['ano_lancamento']}</p>
-                                    <p><strong>País de Origem</strong>: {filme['pais_origem']}</p>
-                                    <p><strong>Categoria</strong>: {filme['categoria']}</p>
-                                    <p><strong>Duração</strong>: {filme['duracao']} minutos</p>
-                                </div>
-                            """, unsafe_allow_html=True)
-                            st.markdown("---")
-                    else:
-                        st.write("Nenhum filme encontrado.")
+            if ano:
+                filmes_por_ano = get_filmes_por_ano(ano)
+                if filmes_por_ano:
+                    st.write(f"Filmes lançados em {ano}:")
+                    for filme in filmes_por_ano:
+                        st.markdown(f'''
+                            <div class="filme-card">
+                                <img src="{filme['imagem_url']}" class="filme-imagem">
+                                <p><strong>Título Original:</strong> {filme['titulo_original']}</p>
+                                <p><strong>Título Brasil:</strong> {filme['titulo_brasil']}</p>
+                                <p><strong>Ano de Lançamento:</strong> {filme['ano_lancamento']}</p>
+                                <p><strong>País de Origem:</strong> {filme['pais_origem']}</p>
+                                <p><strong>Categoria:</strong> {filme['categoria']}</p>
+                                <p><strong>Duração:</strong> {filme['duracao']}</p>
+                                <p><strong>Classificação:</strong> {filme['classificacao']}</p>
+                            </div>
+                        ''', unsafe_allow_html=True)
+                else:
+                    st.write("Nenhum filme encontrado para o ano especificado.")
 
-            with col2:
-                if st.button("Recomendar por Ano"):
-                    filmes_por_ano = get_filmes_por_ano(ano)
-                    if filmes_por_ano:
-                        st.write(f"Filmes do ano {ano}:")
-                        for filme in filmes_por_ano:
-                            st.markdown(f"""
-                                <div class="filme-card">
-                                    <p><strong>Título Original</strong>: {filme['titulo_original']}</p>
-                                    <p><strong>Título no Brasil</strong>: {filme['titulo_brasil']}</p>
-                                    <p><strong>Ano de Lançamento</strong>: {filme['ano_lancamento']}</p>
-                                    <p><strong>País de Origem</strong>: {filme['pais_origem']}</p>
-                                    <p><strong>Categoria</strong>: {filme['categoria']}</p>
-                                    <p><strong>Duração</strong>: {filme['duracao']} minutos</p>
-                                </div>
-                            """, unsafe_allow_html=True)
-                            st.markdown("---")
-                    else:
-                        st.write("Nenhum filme encontrado.")
-    
     elif opcao_principal == "Exibição":
-        st.subheader("Filmes na Telinha")
-        exibicoes = get_exibicao()  
+        st.subheader("Exibição de Filmes")
+        exibicoes = get_exibicao()
         if exibicoes:
-            num_colunas = 3  # Definindo o número de colunas
-            colunas = st.columns(num_colunas)
-            
-            for idx, exibicao in enumerate(exibicoes):
-                coluna = colunas[idx % num_colunas]  # Seleciona a coluna com base no índice do canal
-                
-                with coluna:
-                    st.markdown(f"""
-                        <div class="canal-card">
-                            <p><strong>Número do Filme:</strong> {exibicao['num_filme']}</p>
-                            <p><strong>Nome do Filme:</strong> {exibicao['nome_filme']}</p>
-                            <p><strong>Canal:</strong> {exibicao['num_canal']}</p>
-                            <p><strong>Data e Hora:</strong> {exibicao['data_formatada']}</p>
-                        </div>
-                    """, unsafe_allow_html=True)
-                    st.markdown("---")
+            for exibicao in exibicoes:
+                st.write(f"Filme: {exibicao['nome_filme']}")
+                st.write(f"Data: {exibicao['data_formatada']}")
+                st.markdown(f'<img src="{exibicao["imagem_canal"]}" class="canal-imagem">', unsafe_allow_html=True)
+                st.markdown("---")
         else:
             st.write("Nenhuma exibição encontrada.")
-
 
 if __name__ == "__main__":
     main()

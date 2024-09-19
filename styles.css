@@ -23,7 +23,7 @@
     border: none;
     border-bottom: 2px solid #E50914;  /* Linha vermelha nos campos de entrada */
     background: transparent;
-    color: white;
+    color: rgb(10, 10, 10);
     font-size: 16px;
 }
 
@@ -59,18 +59,27 @@ h1, h2, h3, h4, h5, h6 {
     margin: 4px 0;
     font-size: 14px;
     color: #333;
+    object-fit: cover;
 }
 
 .canal-imagem {
-    height: 210px;  /* Define uma altura fixa */
+    width: 100px;  /* Largura reduzida */
+    height: auto;  /* Altura automática para manter a proporção */
     object-fit: cover;  /* Ajusta a imagem para cobrir o espaço sem distorcer */
-    width: 100%;  /* Garante que a imagem preencha a largura da coluna */
-    border-radius: 15px;  /* Aplica bordas arredondadas */
+    border-radius: 8px;  /* Aplica bordas arredondadas */
     border: 2px solid #ddd;  /* Adiciona uma borda leve ao redor da imagem (opcional) */
-    transition: transform 0.3s ease, box-shadow 0.3s ease;  /* Suaviza a transição */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-right: 10px; /* Espaçamento à direita da imagem */
 }
 
 .canal-imagem:hover {
-    transform: scale(1.05);  /* Aumenta a imagem em 5% */
+    transform: scale(1.05);  /* Aumenta a imagem em 5% ao passar o mouse */
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);  /* Aplica uma sombra mais profunda */
+}
+
+.imagem-canal {
+    width: 80px;  /* Ajuste a largura conforme necessário */
+    height: auto;  /* Mantém a proporção da imagem */
+    border-radius: 8px;
+    white-space: nowrap;  /* Bordas arredondadas, se desejado */
 }

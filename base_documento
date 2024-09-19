@@ -13,3 +13,45 @@ COMANDO: pip install streamlit
 COMANDO: pip install mysql-connector-python
 7- RODE O STEAMLIT
 COMANDO: streamlit run app.py
+8- PARA O TRIGGER, passo a passo:
+- No banco de dados coloque 
+1) //ALTER TABLE filme ADD COLUMN classificacao varchar(5);
+
+2) //SET SQL_SAFE_UPDATES = 0;
+
+3) 
+
+//UPDATE filme
+@REM SET classificacao = 16
+@REM WHERE num_filme = 1;
+
+@REM UPDATE filme
+@REM SET classificacao = CASE num_filme
+@REM     WHEN 2 THEN 'livre'
+@REM     WHEN 3 THEN '16'
+@REM     WHEN 4 THEN '18'
+@REM 	WHEN 5 THEN '18'
+@REM 	WHEN 6 THEN '18'
+@REM 	WHEN 7 THEN 'livre'
+@REM 	WHEN 8 THEN '16'
+@REM 	WHEN 9 THEN '10'
+@REM 	WHEN 10 THEN '10'
+@REM 	WHEN 11 THEN '10'
+@REM 	WHEN 12 THEN 'livre'
+@REM 	WHEN 13 THEN '18'
+@REM 	WHEN 14 THEN '18'
+@REM 	WHEN 15 THEN '18'
+@REM 	WHEN 16 THEN '14'
+@REM 	WHEN 17 THEN '16'
+@REM   WHEN 18 THEN '16'
+@REM   WHEN 19 THEN '16'
+@REM   WHEN 20 THEN '10'
+@REM   WHEN 21 THEN '18'
+@REM     -- Adicione mais condições conforme necessário
+@REM     ELSE classificacao -- Mantém o valor atual para registros não especificados
+@REM END;
+
+4) //SET SQL_SAFE_UPDATES = 1;
+ 
+ 
+

@@ -93,12 +93,83 @@ CREATE TABLE `filme` (
 -- Dumping data for table `filme`
 --
 
+ALTER TABLE filme ADD COLUMN classificacao varchar(5);
+
+UPDATE filme
+SET classificacao = 16
+WHERE num_filme = 1;
+
+UPDATE filme
+SET classificacao = CASE num_filme
+    WHEN 2 THEN 'livre'
+    WHEN 3 THEN '16'
+    WHEN 4 THEN '18'
+	WHEN 5 THEN '18'
+	WHEN 6 THEN '18'
+	WHEN 7 THEN 'livre'
+	WHEN 8 THEN '16'
+	WHEN 9 THEN '10'
+	WHEN 10 THEN '10'
+	WHEN 11 THEN '10'
+	WHEN 12 THEN 'livre'
+	WHEN 13 THEN '18'
+	WHEN 14 THEN '18'
+	WHEN 15 THEN '18'
+	WHEN 16 THEN '14'
+	WHEN 17 THEN '16'
+  WHEN 18 THEN '16'
+  WHEN 19 THEN '16'
+  WHEN 20 THEN '10'
+  WHEN 21 THEN '18'
+    -- Adicione mais condições conforme necessário
+    ELSE classificacao -- Mantém o valor atual para registros não especificados
+END;
+
+SET SQL_SAFE_UPDATES = 0;
+
+SET SQL_SAFE_UPDATES = 1;
+
+DELIMITER //
+
+CREATE TRIGGER trigger_alerta_classificacao
+BEFORE INSERT ON exibicao
+FOR EACH ROW 
+BEGIN
+    DECLARE classificacao varchar(5);
+
+    -- Seleciona a classificação do filme correspondente
+    SELECT classificacao INTO classificacao
+    FROM filme
+    WHERE filme.num_filme = NEW.num_filme;
+    
+    -- Verifica se a classificação é maior que 18
+    IF classificacao > 18 THEN
+        -- Gera um sinal de erro com uma mensagem personalizada
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Alerta: Filme com classificação indicativa para maiores de 18 anos.';
+    END IF;
+END;
+//
+
+DELIMITER ;
+
+
 LOCK TABLES `filme` WRITE;
 /*!40000 ALTER TABLE `filme` DISABLE KEYS */;
 INSERT INTO `filme` VALUES (1,'50 First Dates','Como se fosse a primeira vez',2004,'Estados Unidos','comédia romântica',99,'https://br.web.img3.acsta.net/c_310_420/pictures/20/11/23/14/35/4981975.jpg'),(2,'Paranormal Activity','Atividade Paranormal',2007,'Estados Unidos','Terror',86,'https://br.web.img3.acsta.net/c_310_420/medias/nmedia/18/87/89/84/20028680.jpg'),(3,'My Sister\'s Keeper','Uma prova de amor',2004,'Estados Unidos','Drama',107,'https://br.web.img3.acsta.net/c_310_420/medias/nmedia/18/87/29/38/19874004.jpg'),(4,'Life in a year','A vida em um ano',2021,'Estados Unidos','Romance',107,'https://br.web.img3.acsta.net/c_310_420/pictures/20/12/02/15/57/1426320.jpg'),(5,'The Internship','Os estagiários',2013,'Estados Unidos','Comédia',120,'https://br.web.img3.acsta.net/c_310_420/pictures/210/068/21006856_20130517195500909.jpg'),(6,'Jojo Rabbit','Jojo Rabbit',2019,'Estados Unidos','Drama',108,'https://br.web.img2.acsta.net/c_310_420/pictures/20/01/28/22/54/2304385.jpg'),(7,'Harry Potter and The Chamber of Secrets','Harry Potter e a Câmara Secreta',2002,'Londres','Fantasia',158,'https://br.web.img2.acsta.net/c_310_420/medias/nmedia/18/93/01/50/20230712.jpg'),(8,'Superbad - É hoje!','Superbad',2007,'Estados Unidos','Comédia',112,'https://br.web.img3.acsta.net/c_310_420/medias/nmedia/18/87/21/42/19873179.jpg'),(9,'The Conjuring','Invocação do Mal',2013,'Estados Unidos','Terror',110,'https://br.web.img3.acsta.net/c_310_420/pictures/210/166/21016629_2013062820083878.jpg'),(10,'Remember the Titans','Duelo de Titãs',2001,'Estados Unidos','Drama',114,'https://br.web.img3.acsta.net/c_310_420/medias/nmedia/18/94/62/13/20343423.jpg'),(11,'Minha Mãe é uma Peça','Minha Mãe é uma Peça',2013,'Brasil','Comédia',85,'https://br.web.img3.acsta.net/c_310_420/pictures/210/016/21001687_20130426011958954.jpg'),(12,'The Imitation Game','O Jogo Da Imitação',2014,'Estados Unidos','Ficção Científica',115,'https://br.web.img3.acsta.net/c_310_420/pictures/14/10/30/19/02/198128.jpg'),(13,'John Wick: Chapter 4','John Wick 4: Baba Yaga',2023,'Estados Unidos','Ação',170,'https://br.web.img2.acsta.net/c_310_420/pictures/22/12/05/09/07/2007563.jpg'),(14,'Inside Out 2','Divertida Mente 2',2024,'Estados Unidos','Animação',96,'https://br.web.img2.acsta.net/c_310_420/pictures/23/11/09/18/04/2076862.jpg'),(15,'The Lion King','O Rei Leão',2019,'Estados Unidos','Fantasia',108,'https://br.web.img3.acsta.net/c_310_420/pictures/19/05/07/20/54/2901026.jpg'),(16,'Ice Age','A Era do gelo',2002,'Estados Unidos','Animação',81,'https://br.web.img2.acsta.net/c_310_420/medias/nmedia/18/90/29/80/20109874.jpg'),(17,'The Dark Knight','Batman - O Cavaleiro Das Trevas',2008,'Estados Unidos','Ação',152,'https://br.web.img3.acsta.net/c_310_420/medias/nmedia/18/86/98/32/19870786.jpg'),(18,'Avengers: Endgame','Vingadores: Ultimato',2019,'Estados Unidos','Fantasia',241,'https://br.web.img2.acsta.net/c_310_420/pictures/19/04/26/17/30/2428965.jpg'),(19,'Rio','Rio',2011,'Estados Unidos','Animação',90,'https://br.web.img3.acsta.net/c_310_420/medias/nmedia/18/87/32/32/19874310.jpg'),(20,'O Auto da Compadecida','O Auto da Compadecida',2000,'Brasil','Comédia',95,'https://br.web.img2.acsta.net/c_310_420/medias/nmedia/18/87/87/75/19962458.jpg'),(21,'1917','1917',2020,'Estados Unidos','Ação',119,'https://br.web.img3.acsta.net/c_310_420/pictures/19/10/04/19/42/5605017.jpg');
+
+
+
+
+
 /*!40000 ALTER TABLE `filme` ENABLE KEYS */;
 UNLOCK TABLES;
+
+
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+
+
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
