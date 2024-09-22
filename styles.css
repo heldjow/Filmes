@@ -23,7 +23,7 @@
     border: none;
     border-bottom: 2px solid #E50914;  /* Linha vermelha nos campos de entrada */
     background: transparent;
-    color: rgb(10, 10, 10);
+    color: #FFFFFF;
     font-size: 16px;
 }
 
@@ -47,29 +47,30 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Estilos para o cartão de canais */
 .canal-card {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 16px;
-    margin: 8px;
-    background-color: #f9f9f9;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 2px solid #E50914;  /* Borda vermelha para a caixa de filme */
+    color: #FFFFFF;  /* Texto branco */
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);  /* Sombra leve para a caixa */
+    margin-top: 10px;
+    margin-bottom: 15px;
+    background-color: #333333;  /* Fundo cinza escuro para a caixa */
 }
 
 .canal-card p {
     margin: 4px 0;
     font-size: 14px;
-    color: #333;
+    color: #FFFFFF;
     object-fit: cover;
 }
 
 .canal-imagem {
-    width: 100px;  /* Largura reduzida */
-    height: auto;  /* Altura automática para manter a proporção */
+    width: 222px;
+    height: 140px;
     object-fit: cover;  /* Ajusta a imagem para cobrir o espaço sem distorcer */
     border-radius: 8px;  /* Aplica bordas arredondadas */
-    border: 2px solid #ddd;  /* Adiciona uma borda leve ao redor da imagem (opcional) */
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    margin-right: 10px; /* Espaçamento à direita da imagem */
+    border: 2px solid #E50914;  /* Adiciona uma borda leve ao redor da imagem (opcional) */
+    margin-right: 4px; /* Espaçamento à direita da imagem */
 }
 
 .canal-imagem:hover {
@@ -77,9 +78,3 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);  /* Aplica uma sombra mais profunda */
 }
 
-.imagem-canal {
-    width: 80px;  /* Ajuste a largura conforme necessário */
-    height: auto;  /* Mantém a proporção da imagem */
-    border-radius: 8px;
-    white-space: nowrap;  /* Bordas arredondadas, se desejado */
-}
