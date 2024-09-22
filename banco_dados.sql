@@ -1,3 +1,4 @@
+create database programacoes_filmes;
 use programacoes_filmes;
 
 CREATE TABLE canal (
