@@ -140,7 +140,6 @@ def add_filme(num_filme, titulo_original, titulo_brasil, ano_lancamento, pais_or
 
 
 
-
 # Função para remover um filme
 def remove_filme(num_filme):
     try:
