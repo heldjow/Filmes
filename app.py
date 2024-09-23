@@ -19,7 +19,7 @@ def connect_to_db(user, password):
 
 # Função principal para exibir a tela de login
 def login():
-    st.title("Tela de Login do Banco de Dados")
+    st.markdown('<h1 style="color: red;">🎬 RURAFLIX</h1>', unsafe_allow_html=True)
 
     # Campos para o usuário inserir nome de usuário e senha
     user = st.text_input("Usuário do MySQL", value="", max_chars=30)
@@ -130,15 +130,8 @@ def add_filme(num_filme, titulo_original, titulo_brasil, ano_lancamento, pais_or
         # Mensagem de sucesso após inserir
         st.success("Filme adicionado com sucesso!")
 
-    except Exception as e:
-        # Apenas exibe a mensagem de erro relacionada à classificação
-        if '45000' in str(e):
-            st.error("Erro: O filme possui classificação indicativa para maiores de 18 anos.")
-        # Se o erro não for relacionado ao trigger, não exibe nada
-        else:
-            pass  # Ignora outros erros ou trate de outra forma, se necessário
-
-
+    except Error as e:
+        st.error(f"Erro ao adicionar filme: {e}")
 
 # Função para remover um filme
 def remove_filme(num_filme):
