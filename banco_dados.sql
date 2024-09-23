@@ -32,6 +32,26 @@ ON DELETE CASCADE
 ON UPDATE CASCADE
 );
 
+
+
+DELIMITER //
+
+CREATE TRIGGER trigger_test_5
+BEFORE INSERT ON filme
+FOR EACH ROW 
+BEGIN
+    -- Verifica se a classificação indicativa é maior que 18
+    IF NEW.classificacao > 17 THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'O filme possui classificação indicativa para maiores de 18 anos';
+    END IF;
+END;
+//
+
+DELIMITER ;
+
+
+
 INSERT INTO canal (num_canal,nome,sigla,imagem_url)
 VALUES
 (1,'Home Box Ofice','HBO','https://marcasmais.com.br/wp-content/uploads/2020/07/hbo_max_followup_logo.jpg'),
@@ -102,3 +122,4 @@ VALUES (1,1,'2024-09-25 08:00:00'),
 (2,5,'2024-09-26 09:00:00'),
 (3,5,'2024-09-27 18:00:00'),
 (5,5,'2024-09-29 08:00:00');
+

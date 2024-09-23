@@ -112,19 +112,34 @@ def filme_existe(num_filme):
 # Função para adicionar um novo filme
 def add_filme(num_filme, titulo_original, titulo_brasil, ano_lancamento, pais_origem, categoria, duracao, imagem_url, classificacao):
     try:
+        # Acessa a conexão armazenada em session_state
         cursor = st.session_state['connection'].cursor(dictionary=True)
+        
+        # Query de inserção
         query = """
         INSERT INTO filme (num_filme, titulo_original, titulo_brasil, ano_lancamento, pais_origem, categoria, duracao, imagem_url, classificacao)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         values = (num_filme, titulo_original, titulo_brasil, ano_lancamento, pais_origem, categoria, duracao, imagem_url, classificacao)
         cursor.execute(query, values)
+        
+        # Confirma a operação no banco de dados
         st.session_state['connection'].commit()
         cursor.close()
-        st.success("Filme adicionado com sucesso!")
         
-    except Error as e:
-        st.error(f"Erro ao adicionar filme: {e}")
+        # Mensagem de sucesso após inserir
+        st.success("Filme adicionado com sucesso!")
+
+    except Exception as e:
+        # Apenas exibe a mensagem de erro relacionada à classificação
+        if '45000' in str(e):
+            st.error("Erro: O filme possui classificação indicativa para maiores de 18 anos.")
+        # Se o erro não for relacionado ao trigger, não exibe nada
+        else:
+            pass  # Ignora outros erros ou trate de outra forma, se necessário
+
+
+
 
 # Função para remover um filme
 def remove_filme(num_filme):
@@ -292,7 +307,7 @@ def main():
 
                 if st.button("Adicionar Filme"):
                     add_filme(num_filme, titulo_original, titulo_brasil, ano_lancamento, pais_origem, categoria, duracao, imagem_url, classificacao)
-
+                
             elif escolha == "Remover Filme":
                 st.subheader("Remover Filme")
                 num_filme = st.number_input("Número do Filme", min_value=1)
