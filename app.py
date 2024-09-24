@@ -97,18 +97,6 @@ def get_exibicao():
     except Error as e:
         st.error(f"Erro ao conectar ao banco de dados: {e}")
 
-# Função para verificar se o número do filme já existe
-def filme_existe(num_filme):
-    try:
-        cursor = st.session_state['connection'].cursor(dictionary=True)
-        cursor.execute("SELECT COUNT(*) FROM filme WHERE num_filme = %s", (num_filme,))
-        resultado = cursor.fetchone()[0]
-        cursor.close()
-        return resultado > 0
-    except Error as e:
-        st.error(f"Erro ao verificar existência do filme: {e}")
-        return False
-
 # Função para adicionar um novo filme
 def add_filme(num_filme, titulo_original, titulo_brasil, ano_lancamento, pais_origem, categoria, duracao, imagem_url, classificacao):
     try:
@@ -195,10 +183,28 @@ def get_filmes_por_ano(ano):
         st.error(f"Erro ao conectar ao banco de dados: {e}")
         return []
 
-# Função para verificar a classificação e mostrar uma notificação
-def verificar_classificacao(classificacao):
-    if classificacao == "18":
-        st.warning("Este filme é para maiores de 18 anos.")
+def add_exibicao(num_filme, num_canal, data):
+    try:
+        # Acessa a conexão armazenada em session_state
+        cursor = st.session_state['connection'].cursor(dictionary=True)
+        
+        # Query de inserção para adicionar a exibição
+        query = """
+        INSERT INTO exibicao (num_filme, num_canal, data)
+        VALUES (%s, %s, %s)
+        """
+        values = (num_filme, num_canal, data)
+        cursor.execute(query, values)
+        
+        # Confirma a operação no banco de dados
+        st.session_state['connection'].commit()
+        cursor.close()
+        
+        # Mensagem de sucesso após inserir
+        st.success("Exibição adicionada com sucesso!")
+    except Error as e:
+        st.error(f"Erro ao adicionar exibição: {e}")
+
 
 # Função principal da aplicação
 def main():
@@ -373,7 +379,35 @@ def main():
         
         elif opcao_principal == "Exibição":
             st.subheader("Filmes na Telinha")
-            exibicoes = get_exibicao()  
+
+            # Formulário para adicionar uma nova exibição
+            with st.form(key='adicionar_exibicao'):
+                st.write("Adicionar nova exibição de filme")
+                
+                # Campos de entrada para adicionar a exibição
+                num_filme = st.text_input("Número do Filme")
+                num_canal = st.text_input("Número do Canal")
+                data_exibicao = st.date_input("Data da Exibição")
+                hora_exibicao = st.time_input("Hora da Exibição")
+                
+                # Botão de submissão
+                submit_button = st.form_submit_button(label="Adicionar Exibição")
+                
+                # Ação ao submeter o formulário
+                if submit_button:
+                    if num_filme and num_canal:
+                        # Junta a data e a hora para criar o campo completo da data de exibição
+                        data_completa = f"{data_exibicao} {hora_exibicao}"
+                        
+                        # Função para adicionar exibição
+                        add_exibicao(num_filme, num_canal, data_completa)
+                    else:
+                        st.error("Por favor, preencha os campos obrigatórios (Número do Filme, Número do Canal).")
+            
+            # Listagem das exibições de filmes
+            st.write("### Exibições Atuais")
+            exibicoes = get_exibicao()  # Função que consulta as exibições
+            
             if exibicoes:
                 num_colunas = 3  # Definindo o número de colunas
                 colunas = st.columns(num_colunas)
@@ -393,6 +427,7 @@ def main():
                         st.markdown("---")
             else:
                 st.write("Nenhuma exibição encontrada.")
+
 
 
 if __name__ == "__main__":
